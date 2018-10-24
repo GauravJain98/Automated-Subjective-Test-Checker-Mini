@@ -1,33 +1,16 @@
-from textblob import TextBlob
-from textblob.np_extractors import ConllExtractor
-import operator
+from worker import train,evaluate
 
-extractor = ConllExtractor()
+class Question():
+    def __init__(self, data_set,marks):
+        self.data_set = data_set
+        self.marks = marks
 
-keyPhrases = {}
+Q = Question(data_set = ["This is a nice project we will do awesome things. The author is Gaurav Jain and he was a great man","This is a nice project we will do awesome things and Gaurav Jain"],marks = 10)
 
-def train(data_set):
-    for ans in data_set:
-        blob = TextBlob(ans, np_extractor=extractor)
-        phrases = list(blob.noun_phrases)
-        for phrase in phrases:
-            if phrase in keyPhrases:
-                keyPhrases[phrase] +=1
-            else:
-                keyPhrases[phrase] = 1
-    sorted_phrases = sorted(keyPhrases.items(), key=operator.itemgetter(1),reverse=True)
-    
+train(Q.data_set)
 
-
-def evaluate(marks,ans):
-    nKeyPhrases =  len(keyPhrases)
-    ansMarks = 0
-    blob = TextBlob(ans, np_extractor=extractor)
-    phrases = list(blob.noun_phrases)
-
-    for phrase in phrases:
-        if phrase in keyPhrases:
-            ansMarks = ansMarks+ (marks/nKeyPhrases)
- 
-    return ansMarks
- 
+while True:
+    ans = str(input("Enter answer to evaluate or 0 to exit \n"))
+    if ans == "0":
+        break
+    print("Marks " + str(evaluate(Q.marks,ans)) + "Out of "+Q.marks)

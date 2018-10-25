@@ -1,31 +1,38 @@
 from worker import train,evaluate
-from data_set import *
+from data_set import data_sets
 
 class Question():
-    def __init__(self, data_set,marks):
+    def __init__(self, data_set,marks,text):
+        self.text = text
         self.data_set = data_set
         self.marks = marks
         self.phrases = []
 
-    def setPhrases(phrases):
+    def setPhrases(self,phrases):
         self.phrases = phrases
 
-    def getPhrases(phrases):
+    def getPhrases(self,phrases):
         return self.phrases
 
-Q1 = Question(data_set_1 = data_set,marks = 10)
-Q2 = Question(data_set_2 = data_set,marks = 5)
+markses = [10,5]
 
-train(Q1)
-train(Q2)
+question = []
+questions = ["What is republic day?","What is Engineering?"]
+for i in range(len(markses)):
+    Q = Question(data_set = data_sets[i],marks = markses[i],text=questions[i])
+    train(Q)
+    question.append(Q)
+
+Q = ""
 
 
-if __name__ == "__main__"
+if __name__ == "__main__":
     while True:
-        i = int(input("Enter Question number"))
+        i = int(input("Enter Question number \n"))
         ans = str(input("Enter answer to evaluate or 0 to exit \n"))
-        switch(i):
-            case 1:print("Marks {} Out of {}".format(evaluate(Q1.marks,ans) ,Q1.marks)) break
-            case 2:print("Marks {} Out of {}".format(evaluate(Q2.marks,ans) ,Q2.marks)) break
+        if(i ==1):
+            print("Marks {} Out of {}".format(evaluate(question[0],ans) ,question[0].marks)) 
+        if(i==2):    
+            print("Marks {} Out of {}".format(evaluate(question[1],ans) ,question[1].marks)) 
         if ans == "0":
             break

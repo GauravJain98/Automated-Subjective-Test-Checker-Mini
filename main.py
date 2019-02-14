@@ -1,5 +1,5 @@
 from worker import train,evaluate
-from data_set import data_sets
+from data_set import dataset
 
 class Question():
     def __init__(self, data_set,marks,text):
@@ -9,30 +9,22 @@ class Question():
         self.phrases = []
 
     def setPhrases(self,phrases):
-        self.phrases = phrases
+        self.phrases = self.phrases + phrases
 
-    def getPhrases(self,phrases):
+    def getPhrases(self):
         return self.phrases
 
-markses = [10,5]
+# markses = [10,5]
 
 question = []
-questions = ["What is republic day?","What is Engineering?"]
-for i in range(len(markses)):
-    Q = Question(data_set = data_sets[i],marks = markses[i],text=questions[i])
+# questions = ["What is republic day?","What is Engineering?"]
+for i in range(len(dataset)):
+    Q = Question(data_set = dataset[i]["data"],marks = dataset[i]['max_marks'],text=dataset[i]['question'])
     train(Q)
     question.append(Q)
-
 Q = ""
 
 
 if __name__ == "__main__":
-    while True:
-        i = int(input("Enter Question number \n"))
-        ans = str(input("Enter answer to evaluate or 0 to exit \n"))
-        if(i ==1):
-            print("Marks {} Out of {}".format(evaluate(question[0],ans) ,question[0].marks)) 
-        if(i==2):    
-            print("Marks {} Out of {}".format(evaluate(question[1],ans) ,question[1].marks)) 
-        if ans == "0":
-            break
+    for ans in dataset[0]['data']['test']:
+        print(format(evaluate(question[0],ans)))

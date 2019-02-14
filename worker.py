@@ -1,51 +1,30 @@
-from textblob import TextBlob
-from textblob.np_extractors import ConllExtractor
 import operator
-
-extractor = ConllExtractor()
-
+from rake_nltk import Rake, Metric
 
 def train(Q):
-    keyPhrases = {}
+    keyPhrases = []
     data_set = Q.data_set
-    for ans in data_set:
-        blob = TextBlob(ans, np_extractor=extractor)
-        phrases = list(blob.noun_phrases)
-        for phrase in phrases:
-            if phrase in keyPhrases:
-                keyPhrases[phrase] +=1
-            else:
-                keyPhrases[phrase] = 1
-    sorted_phrases = sorted(keyPhrases.items(), key=operator.itemgetter(1),reverse=True)
-    Q.setPhrases(keyPhrases)
-    
+    r = Rake()
+    r.extract_keywords_from_text(data_set['train_ans'])
+    keywords = r.get_ranked_phrases()
+    Q.setPhrases(keywords)
 
 def evaluate(Q,ans):
     marks = Q.marks
     keyPhrases = Q.phrases
-    if marks == 2:
-        nKeyPhrases =  2
-    if marks == 3:
-        nKeyPhrases =  4
-    if marks == 4:
-        nKeyPhrases =  5
-    if marks == 5:
-        nKeyPhrases =  8
-    if marks == 10:
-        nKeyPhrases =  15
-    if len(keyPhrases.keys()) < nKeyPhrases:
-        nKeyPhrases = len(keyPhrases.keys())
-    ansMarks = 0
-    blob = TextBlob(ans, np_extractor=extractor)
-    phrases = list(set(blob.noun_phrases))
+    ans , testmarks = ans
 
+    ansMarks = 0.0
+    r = Rake()
+    r.extract_keywords_from_text(ans)
+    phrases = r.get_ranked_phrases()
     for phrase in phrases:
         if phrase in keyPhrases:
-            ansMarks = ansMarks+ (marks/nKeyPhrases)
+            ansMarks = ansMarks+ .2
         if ansMarks == marks:
             break
  
-    return ansMarks
+    return ansMarks,testmarks
  
 
 

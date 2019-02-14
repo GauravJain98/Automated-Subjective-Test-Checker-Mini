@@ -1,30 +1,43 @@
 import operator
 from rake_nltk import Rake, Metric
+from nltk.tokenize import word_tokenize
+from nltk.stem import PorterStemmer
+from data_set import *
+from nltk.stem import WordNetLemmatizer
+import string
+def keywordGenerator(train):
+    r = Rake()
+    lemma=WordNetLemmatizer()
+    r.extract_keywords_from_text(train)
+    keywords = r.get_ranked_phrases()
+    finalkeywords = []
+    for keys in keywords:
+        keys=word_tokenize(keys)
+        puncs = ["‘",".","’"] + string.punctuation.split()
+        stopwords = ["(",")"]
+        resultwords  = [word for word in puncs if word.lower() not in stopwords]
+        keys = [i for i in keys if i not in resultwords]
+        stemmed = []
+        for words in keys:
+            stemmed.append(lemma.lemmatize(words))
+        finalkeywords.append(" ".join(stemmed))
+    return finalkeywords
 
 def train(Q):
     keyPhrases = []
     data_set = Q.data_set
-    r = Rake()
-    r.extract_keywords_from_text(data_set['train_ans'])
-    keywords = r.get_ranked_phrases()
-    Q.setPhrases(keywords)
+    Q.setPhrases(keywordGenerator(data_set["train_ans"]))
 
-def evaluate(Q,ans):
+def evaluate(Q):
     marks = Q.marks
     keyPhrases = Q.phrases
-    ans , testmarks = ans
-
-    ansMarks = 0.0
-    r = Rake()
-    r.extract_keywords_from_text(ans)
-    phrases = r.get_ranked_phrases()
-    for phrase in phrases:
-        if phrase in keyPhrases:
-            ansMarks = ansMarks+ .2
-        if ansMarks == marks:
-            break
- 
-    return ansMarks,testmarks
+    for text,marks in Q.data_set["test"]:
+        ansMarks = 0.0
+        phrases=keywordGenerator(text)
+        for phrase in phrases:
+            if phrase in keyPhrases:
+                ansMarks = ansMarks+ (Q.marks/len(Q.phrases))
+        print(ansMarks,marks)
  
 
 

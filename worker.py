@@ -5,43 +5,101 @@ from nltk.stem import PorterStemmer
 from data_set import *
 from nltk.stem import WordNetLemmatizer
 import string
+import math
+
+Table = {}
+
+
 def keywordGenerator(train):
     r = Rake()
-    lemma=WordNetLemmatizer()
+    ansLen = len(train)
+    lemma = WordNetLemmatizer()
+    avgWordDict = {}
+    keyword = []
+    allStemmed = {}
+    wordDict = {}
     r.extract_keywords_from_text(train)
     keywords = r.get_ranked_phrases()
     finalkeywords = []
     for keys in keywords:
-        keys=word_tokenize(keys)
-        puncs = ["‘",".","’"] + string.punctuation.split()
-        stopwords = ["(",")"]
-        resultwords  = [word for word in puncs if word.lower() not in stopwords]
-        keys = [i for i in keys if i not in resultwords]
+        keys = word_tokenize(keys)
+        puncs = ["‘", ".", "’"] + string.punctuation.split()
+        #stopwords = ["(", ")"]
+        # resultwords = [word.lower()
+        #              for word in puncs if word.lower() not in stopwords]
+        keys = [i for i in keys if i not in puncs]
         stemmed = []
         for words in keys:
             stemmed.append(lemma.lemmatize(words))
-        finalkeywords.append(" ".join(stemmed))
-    return finalkeywords
-
-def train(Q):
-    keyPhrases = []
-    data_set = Q.data_set
-    Q.setPhrases(keywordGenerator(data_set["train_ans"]))
-
-def evaluate(Q):
-    marks = Q.marks
-    keyPhrases = Q.phrases
-    for text,marks in Q.data_set["test"]:
-        ansMarks = 0.0
-        phrases=keywordGenerator(text)
-        for phrase in phrases:
-            if phrase in keyPhrases:
-                ansMarks = ansMarks+ (Q.marks/len(Q.phrases))
-        print(ansMarks,marks)
- 
+        #finalkeywords.append(" ".join(stemmed))
+        # print(stemmed)
+        for stem in stemmed:
+            if stem in allStemmed:
+                allStemmed[stem] += 1/ansLen
+            else:
+                allStemmed[stem] = 1/ansLen
+    return allStemmed
 
 
-"""
-{'full cognizance': 1, 'broad range': 1, 'more specific emphasis': 1, 'empirical evidence': 1, 'engineering': 1, 'creative application': 2}
-{'president': 1, 'india': 4, 'republic day honours': 1, 'new delhi': 1, 'main republic day celebration': 1, 'india act': 1, 'government': 1, 'constitution': 1, 'rajpath': 2, 'national capital': 1, 'rich cultural heritage': 1, '26 january 1950': 1}
-"""
+def train():
+    keywordTf = {}
+    noOfDocs = len(final_dataset[0]['data']['train_ans'])
+    for train_ans in final_dataset[0]['data']["train_ans"]:
+        keywordDict = keywordGenerator(train_ans)
+        for key in keywordDict.keys():
+            if key in keywordTf:
+                keywordTf[key] += noOfDocs/keywordDict[key]
+            else:
+                keywordTf[key] = noOfDocs/keywordDict[key]
+    wts = {}
+    for keyword in keywordTf.keys():
+        wts[keyword] = (1/keywordTf[keyword])
+    return wts
+
+
+def computeTF():
+    global Train
+    Train = train()
+    noOfDocs = len(final_dataset[0]['data']['train_ans'])
+    allWts = 0
+    for train_ans in final_dataset[0]['data']["train_ans"]:
+        ansWt = 0
+        keywordDict = keywordGenerator(train_ans)
+        for key in keywordDict.keys():
+            if key in Train:
+                ansWt += Train[key]
+        allWts += ansWt/noOfDocs
+    final_dataset[0]['data']['fullWt'] = allWts
+    return allWts
+
+
+computeTF()
+
+
+def evaluate(ans):
+    global Train
+    noOfDocs = len(final_dataset[0]['data']['train_ans'])
+    allWts = final_dataset[0]['data']['fullWt']
+    maxMarks = final_dataset[0]['max_marks']
+    ansWt = 0
+    keywordDict = keywordGenerator(ans)
+    for key in keywordDict.keys():
+        if ansWt >= allWts:
+            break
+        if key in Train:
+            ansWt += Train[key]
+    return ansWt*maxMarks/allWts
+    # marks = Q.marks
+    # keyPhPasess = Q.phrases
+    # mse = 0
+    # for text, marks in final_dataset[0]['data']["test"]:
+    #     ansMarks = 0.0
+    #     phrases = keywordGenerator(text)
+    #     for phrase in phrases:
+    #         if phrase in keyPhPasess:
+    #             ansMarks = ansMarks + (Q.marks/len(Q.phrases))
+    #     print(ansMarks, marks)
+    #     add = pow(((ansMarks-marks)/marks), 2)
+    #     print(add)
+    #     mse = mse + add
+    # print((pow(mse, 0.5)))

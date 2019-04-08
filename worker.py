@@ -48,13 +48,10 @@ def train():
         keywordDict = keywordGenerator(train_ans)
         for key in keywordDict.keys():
             if key in keywordTf:
-                keywordTf[key] += noOfDocs/keywordDict[key]
+                keywordTf[key] += 1/keywordDict[key]
             else:
-                keywordTf[key] = noOfDocs/keywordDict[key]
-    wts = {}
-    for keyword in keywordTf.keys():
-        wts[keyword] = (1/keywordTf[keyword])
-    return wts
+                keywordTf[key] = 1/keywordDict[key]
+    return keywordTf
 
 
 def computeTF():
@@ -78,7 +75,6 @@ computeTF()
 
 def evaluate(ans):
     global Train
-    noOfDocs = len(final_dataset[0]['data']['train_ans'])
     allWts = final_dataset[0]['data']['fullWt']
     maxMarks = final_dataset[0]['max_marks']
     ansWt = 0

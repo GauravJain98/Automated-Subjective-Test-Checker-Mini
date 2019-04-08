@@ -44,10 +44,10 @@ final_dataset = [
             "test": [
                 ("The testing when each single module of a program is tested separately.", 2),
                 ("This is performed by developers before giving it to testing team. All the bugs are not found and there is a limit on data set", 1),
-                ("In unit testing, the software is divided into number of modules and those are known as units. Those units are tested separately, each unit tested according to thin test suite", 1),
-                ("In unit testing a module is tested in isolation to other modules. it is done to check if all the independent modules in a path is executed", 1),
+                ("In unit testing, the software is divided into number of modules and those are known as units. Those units are tested separately, each unit tested according to thin test suite", 1.5),
+                ("In unit testing a module is tested in isolation to other modules. it is done to check if all the independent modules in a path is executed", 1.5),
                 ("In this testing, the testers test the individual units with a small code and unique functionality to determine the errors and bugs in the program.", 1.5),
-                ("Every unit of a program is isolated and checked for various inputs using driver functions and stubs.", 1.5),
+                ("Every unit of a program is isolated and checked for various inputs using driver functions and stubs.", 1),
                 ("Unit testing is a testing technique in which each statement of code is treated individually and is runned or tested at least once. Unit testing is performed by programmer only while coding.", 1),
                 ("In this a small part of the code has been taken and test that part by giving input and getting the output if the program is bigger then firstly the program is divided into small parts and unit testing will apply on that.", 1),
                 ("unit testing: unit is defined as the smallest part of the program or a token that implements a given requirement. It is done by designing a scoffolding that includes a driver to test the unit as the unit by itself is not executable.This takes a lot of time as there is a large number of units in the program", 1),
